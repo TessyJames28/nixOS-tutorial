@@ -57,21 +57,32 @@ let
                 type = markerType;
                 default = {};
             };
+
+            arrival = lib.mkOption {
+                type = markerType;
+                default = {};
+            };
         };
         
     # this config allows easy access to name from the marker submodules label option to set a default
         config = {
             departure.style.label = lib.mkDefault
                 (firstUpperAlnum name);
+            arrival.style.label = lib.mkDefault
+                (firstUpperAlnum name);
         };
     });
 
 in {
+
+    imports = [
+        ./path.nix
+    ];
     
     options = {
     # allows additing a users attr set to config in any submodule that imports marker.nix where each attrs will be of userType
         users = lib.mkOption {
-            type = libe.types.attrsOf userType;
+            type = lib.types.attrsOf userType;
         };
 
         map.markers = lib.mkOption {
@@ -87,8 +98,8 @@ in {
         map.markers = lib.filter
             (marker: marker.location != null)
             (lib.concatMap (user: [
-                user.departure
-            ]) (lib.attrValues config.users))
+                user.departure user.arrival
+            ]) (lib.attrValues config.users));
 
         # allowing the api to handle centre and zoom level
         map.center = lib.mkIf
@@ -131,4 +142,5 @@ in {
                 in "markers=\"${lib.concatStringsSep "|" attributes}\"";
             in
                 builtins.map paramForMarker config.map.markers;
+};
 }
