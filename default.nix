@@ -3,7 +3,7 @@
 
     # import a file that handles location pins and other markers on the map
     imports = [
-        ./market.nix
+        ./marker.nix
     ];
 
     options = {
@@ -21,7 +21,7 @@
         };
         map = {
             zoom = lib.mkOption {
-                type = lib.types.nullor lib.types.int;
+                type = lib.types.nullOr lib.types.int;
                 default = 10; # set automatic zoom upon image opening
             };
 
@@ -44,7 +44,7 @@
             name = "map";
             runtimeInputs = with pkgs; [ curl feh ];
             text = ''
-                ${./map} ${lib.concatStringsSep " "
+                ${./map.sh} ${lib.concatStringsSep " "
                 config.requestParams} | feh -
             '';
         };
@@ -52,12 +52,23 @@
         requestParams = [
             "size=640x640"
             "scale=2"
-            (lib.mkif (config.map.zoom != null)
+            (lib.mkIf (config.map.zoom != null)
                 "zoom=${toString config.map.zoom}")
-            (lib.mkif (config.map.center != null)
+            (lib.mkIf (config.map.center != null)
                 "center=\"$(${config.scripts.geocode}/bin/geocode ${
                     lib.escapeShellArg config.map.center
                 })\"")
         ];
+
+        users = {
+            user1 = {
+                departure = { location = "location1"; };
+                arrival = { location = "location2"; };
+            };
+            user2 = {
+                departure = { location = "location3"; };
+                arrival = { location = "location4"; };
+            };
+        };
     };
-    }
+}
