@@ -61,7 +61,7 @@ in
 
     users = lib.mkOption {
         type = lib.types.attrsOf (lib.types.submodule {
-            options.pathstyle = lib.mkOption {
+            options.pathStyle = lib.mkOption {
                 type = pathStyleType;
                 default = {};
             };
